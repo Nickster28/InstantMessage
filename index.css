@@ -1,0 +1,28 @@
+body {
+	font: 13px Helvetica, Arial;
+}
+
+#buddyMessages { 
+	border-style: solid; 
+	border-width: 2px;
+}
+
+.buddyMessage {
+	background: #ddd;
+}
+
+#m, #nameInput { 
+	width: 100%;
+}
+
+#m {
+	resize: none;
+	outline: none;
+	min-height:60px;
+}
+
+th, td {
+	width: 50%;
+	padding-right: 10px;
+}
+
