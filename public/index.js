@@ -1,5 +1,7 @@
 var socket = null; // This client's current socket
 var lastMessage = ""; // The full message just typed by the user
+var chatBuddyName = ""; // Name of other user we're chatting with
+var currentText = "";
 
 // Runs on document load
 $(function() {
@@ -71,12 +73,14 @@ function configureChatWithUserName(name) {
     socket = io();
 
     function showBuddyName(name) {
+        chatBuddyName = name;
         $('#buddyName').html(name);
     }
 
     socket.on('buddy-assigned', showBuddyName);
 
     socket.on('buddy-left', function() {
+        chatBuddyName = "";
         $('#buddyName').html("Looking for chat buddy...");
     });
 
@@ -84,16 +88,53 @@ function configureChatWithUserName(name) {
     $('#m').keyup(handleKeyUp);
 
     socket.on('chat add', function(msg) {
-      var currText = $('.buddyMessage').text();
-      $('.buddyMessage').text(currText + msg);
+        currentText += msg;
+        var lastChild = $('#buddyMessage').children().last();
+        if(!lastChild.is("p")) {
+            $('#buddyMessage').append('<p>' + msg + '</p>');
+        } else {
+            var currText = lastChild.text();
+            lastChild.text(currText + msg);
+        }
     });
 
-    socket.on('chat delete', function(numCharsDeleted) {
-      var currText = $('.buddyMessage').text();
-      $('.buddyMessage').text(currText.substring(0, currText.length - numCharsDeleted));
-    });
+    socket.on('chat delete', deleteCharacters);
 
     socket.emit('init', name, showBuddyName);
+}
+
+
+function deleteCharacters(numCharsToDelete) {
+    var deletedText = currentText.substring(currentText.length - numCharsToDelete, currentText.length);
+    currentText = currentText.substring(0, currentText.length - numCharsToDelete);
+
+    // 1) go back through ps, deleting numCharactersDeleted characters
+    var editedP = null;
+    $($('#buddyMessage p').get().reverse()).each(function() {
+        if(numCharsToDelete == 0) return;
+        if($(this).text().length == 0) return;
+
+        // Find how many chars we can delete from this p element
+        if($(this).text().length <= numCharsToDelete) {
+            numCharsToDelete -= $(this).text.length;
+            $(this).text("");
+        } else {
+            var newText = $(this).text().substring(0, $(this).text().length - numCharsToDelete);
+            $(this).text(newText);
+            numCharsToDelete = 0;
+        }
+
+        editedP = $(this);
+    });
+
+    // 2) find latest del, add numCharsToDelete characters at beginning
+    var delToEdit = editedP.next();
+    if(!delToEdit.is("del")) {
+        $('#buddyMessage').append('<del>' + deletedText + '</del>');
+    } else {
+        var currText = delToEdit.text();
+        delToEdit.text(deletedText + currText);
+    }
 }
 
 
@@ -110,12 +151,13 @@ key up event, send those to our chat server to route to our
 chat buddy.  Otherwise, if the user has deleted characters
 since we last handled a key up event, forward along how many
 characters were deleted to our chat server to route to our chat
-buddy.
+buddy.  Does nothing if we're not chatting with anyone.
 --------------------------
 */
 function handleKeyUp(keyUpEvent) {
-    var messageText = $('#m').val();
+    if(chatBuddyName == "") return;
 
+    var messageText = $('#m').val();
     if(messageText == "" && lastMessage == "") return;
 
     // If delete was pressed, send # deleted chars to server.

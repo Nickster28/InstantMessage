@@ -2,12 +2,15 @@ body {
 	font: 13px Helvetica, Arial;
 }
 
-#buddyMessages { 
-	border-style: solid; 
-	border-width: 2px;
+p, del {
+	float: left;
 }
 
-.buddyMessage {
+del {
+	color: red;
+}
+
+#buddyMessage {
 	background: #ddd;
 }
 
