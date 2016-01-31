@@ -1,6 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var port = process.env.PORT || 8080;
 
 
 // Make a ChatStore instance to handle all user pairing and
@@ -56,6 +57,6 @@ io.on('connection', function(socket) {
 
 
 // Start our server
-http.listen(3000, function() {
-	console.log('listening on *:3000');
+http.listen(port, function() {
+	console.log('listening on *:' + port);
 });
