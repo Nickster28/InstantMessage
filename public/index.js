@@ -89,6 +89,9 @@ function configureChatWithUserName(name) {
     $('#m').focus();
     $('#m').keyup(handleKeyUp);
 
+    // Either add text to the existing last <p>, or append a new <p>
+    // with the new text (the message is a string of <p>s and <del>s
+    // representing typing and deletion).
     socket.on('chat add', function(msg) {
         var lastChild = $('#buddyMessage').children().last();
         if(!lastChild.is("p")) {
@@ -105,38 +108,70 @@ function configureChatWithUserName(name) {
 }
 
 
+/* FUNCTION: deleteCharacters
+-------------------------------
+Parameters:
+    numCharsToDelete - # characters we should delete from the sender's message
+
+Returns: NA
+
+Deletes numCharsToDelete characters by crawling through the
+children of the buddyMessage table row and removing characters
+from back to front until we've removed numCharsToDelete of them.
+The tricky part is the children are a mix of <p> and <del> elements,
+so we have to iterate through all <p>s from back to front, removing
+characters.  Then, we have to add those same characters to a <del>
+element after the <p> we deleted them from.
+-------------------------------
+*/
 function deleteCharacters(numCharsToDelete) {
 
-    // 1) go back through ps, deleting numCharactersDeleted characters
-    var editedP = null;
+    // Keep track of the last <p> we edit from so we can put the <del> 
+    // element right after (with the same text we deleted, 
+    // which we build up in deletedText)
+    var lastEditedP = null;
     var deletedText = "";
-    $($('#buddyMessage p').get().reverse()).each(function() {
-        if(numCharsToDelete == 0) return;
-        if($(this).text().length == 0) return;
 
-        // Find how many chars we can delete from this p element
+    // Iterate through all <p>s from end to start (deleting goes back-to-front)
+    // removing characters until we've removed numCharsToDelete.
+    $($('#buddyMessage p').get().reverse()).each(function() {
+
+        // Skip if we're done deleting
+        if(numCharsToDelete == 0) return;
+
+        // If this element needs to be consumed entirely, subtract out its length
+        // and set its text to empty.  Otherwise, just take off however many
+        // characters we need to.  Build up deletedText as well to track what
+        // we delete.
         if($(this).text().length <= numCharsToDelete) {
             numCharsToDelete -= $(this).text.length;
             deletedText = $(this).text() + deletedText;
             $(this).text("");
         } else {
-            deletedText = $(this).text().substring($(this).text().length - numCharsToDelete, $(this).text().length) + deletedText;
+            deletedText = $(this).text().substring($(this).text().length - numCharsToDelete, 
+                $(this).text().length) + deletedText;
             var newText = $(this).text().substring(0, $(this).text().length - numCharsToDelete);
             $(this).text(newText);
             numCharsToDelete = 0;
         }
 
-        editedP = $(this);
+        lastEditedP = $(this);
     });
 
-    // 2) find latest del, add numCharsToDelete characters at beginning
-    var delToEdit = editedP.next();
+    // Go to the next element to add back the chars we deleted, but in a <del>.
+    // We append a new one if needed, or add to an existing one.
+    var delToEdit = lastEditedP.next();
     if(!delToEdit.is("del")) {
         $('#buddyMessage').append('<del>' + deletedText + '</del>');
     } else {
         var currText = delToEdit.text();
         delToEdit.text(deletedText + currText);
     }
+
+    // Delete empty <p> elements
+    $('#buddyMessage p').each(function() {
+        if($(this).text().length == 0) $(this).remove();
+    });
 }
 
 
