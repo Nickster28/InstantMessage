@@ -1,4 +1,5 @@
-var app = require('express')();
+var express = require('express')
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 8080;
@@ -10,18 +11,7 @@ var ChatStore = require("./chatStore.js");
 var chatStore = new ChatStore();
 
 
-// Static HTML, CSS and JS files
-app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/index.js', function(req, res) {
-	res.sendFile(__dirname + '/index.js');
-});
-
-app.get('/index.css', function(req, res) {
-	res.sendFile(__dirname + '/index.css');
-});
+app.use(express.static('public'));
 
 
 // Handlers for Socket.io events
