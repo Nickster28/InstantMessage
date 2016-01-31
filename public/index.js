@@ -1,7 +1,6 @@
 var socket = null; // This client's current socket
 var lastMessage = ""; // The full message just typed by the user
 var chatBuddyName = ""; // Name of other user we're chatting with
-var currentText = "";
 
 // Runs on document load
 $(function() {
@@ -72,7 +71,10 @@ function configureChatWithUserName(name) {
 
     socket = io();
 
+    // Clears old buddy text, sets new buddy name
     function showBuddyName(name) {
+        $('#buddyMessage').empty();
+        lastMessage = "";
         chatBuddyName = name;
         $('#buddyName').html(name);
     }
@@ -88,7 +90,6 @@ function configureChatWithUserName(name) {
     $('#m').keyup(handleKeyUp);
 
     socket.on('chat add', function(msg) {
-        currentText += msg;
         var lastChild = $('#buddyMessage').children().last();
         if(!lastChild.is("p")) {
             $('#buddyMessage').append('<p>' + msg + '</p>');
@@ -105,11 +106,10 @@ function configureChatWithUserName(name) {
 
 
 function deleteCharacters(numCharsToDelete) {
-    var deletedText = currentText.substring(currentText.length - numCharsToDelete, currentText.length);
-    currentText = currentText.substring(0, currentText.length - numCharsToDelete);
 
     // 1) go back through ps, deleting numCharactersDeleted characters
     var editedP = null;
+    var deletedText = "";
     $($('#buddyMessage p').get().reverse()).each(function() {
         if(numCharsToDelete == 0) return;
         if($(this).text().length == 0) return;
@@ -117,8 +117,10 @@ function deleteCharacters(numCharsToDelete) {
         // Find how many chars we can delete from this p element
         if($(this).text().length <= numCharsToDelete) {
             numCharsToDelete -= $(this).text.length;
+            deletedText = $(this).text() + deletedText;
             $(this).text("");
         } else {
+            deletedText = $(this).text().substring($(this).text().length - numCharsToDelete, $(this).text().length) + deletedText;
             var newText = $(this).text().substring(0, $(this).text().length - numCharsToDelete);
             $(this).text(newText);
             numCharsToDelete = 0;
