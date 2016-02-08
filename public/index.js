@@ -67,9 +67,16 @@ function configureChatWithUserName(currentUserName) {
         messageDelete(buddyUser);
     });
 
-    // Add key press handler - thanks to http://jsfiddle.net/7SP2n/1/
-    // for the hint that I can add a keypress handler to the whole window
-    $(window).keypress(handleKeyPress);
+    // Add key handler and click handler to always focus on the text field.
+    // We listen for keypress events for typed letters, and keyup only for
+    // delete.
+    $("#invisibleTextField").focus().keypress(handleKeyPress);
+    $("#invisibleTextField").keyup(function(e) {
+        if (e.which == 8) handleKeyPress(e);
+    });
+    $(window).click(function() {
+        $("#invisibleTextField").focus();
+    });
 
     // Initialize the chat - the callback is called if we paired successfully
     // with another chat buddy
@@ -91,15 +98,15 @@ updates the current user to reflect that they are still typing.
 -------------------------------
 */
 function handleKeyPress(e) {
+    $("#invisibleTextField").val("");
     if (!buddyUser) return;
     
     // Handle the key press
-    var ev = e || window.event;
-    if (ev.which == 8) {
+    if (e.which == 8) {
         messageDelete(currentUser);
         socket.emit('chat delete');
     } else {
-        var charToAdd = String.fromCharCode(ev.which);
+        var charToAdd = String.fromCharCode(e.which);
         messageAdd(charToAdd, currentUser, buddyUser); 
         socket.emit('chat add', charToAdd);
     }
@@ -133,16 +140,14 @@ else:
 -----------------------------
 */
 function messageAdd(character, user, secondaryUser) {
-    user.userDidType();
-
     var userTypedLast = $(user.jQueryClassName).last().is(":last-child");
     
     // If this user was the last one to type, just add this character to their
     // last message
-    if (userTypedLast) {
+    if (userTypedLast && user.isTyping) {
         var bubbleSpan = $(user.jQueryClassName).last().find("span");
         bubbleSpan.text(bubbleSpan.text() + character);
-    } else if (!secondaryUser.isTyping || user.hasPrecedence) {
+    } else if (userTypedLast || !secondaryUser.isTyping || user.hasPrecedence) {
         var newElem = "<div class=\"" + user.bubbleClassName + "\">" + 
             "<b>" + user.userName + ": </b> <span>" + character + "</span></div>";
         $(newElem).hide().appendTo($(".container")).fadeIn("fast");
@@ -151,6 +156,8 @@ function messageAdd(character, user, secondaryUser) {
         var bubbleSpan = $(user.jQueryClassName).last().find("span");
         bubbleSpan.text(bubbleSpan.text() + character);
     }
+
+    user.userDidType();
 }
 
 
@@ -169,13 +176,11 @@ function messageDelete(user) {
     var lastUserBubble = $(user.jQueryClassName).last();
     if (lastUserBubble.length == 0) return;
 
-    user.userDidType();
-
     var bubbleSpan = lastUserBubble.find("span");
     var bubbleText = bubbleSpan.text();
     
     // Delete a character from this bubble.  If this makes the bubble empty,
-    // remove it (fade out).
+    // remove it (fade out)
     var newBubbleText = bubbleText.substring(0, bubbleText.length - 1);
     if (newBubbleText.length == 0) {
         lastUserBubble.fadeOut("fast", function() {
@@ -184,6 +189,8 @@ function messageDelete(user) {
     } else {
         bubbleSpan.text(newBubbleText);
     }
+    
+    user.userDidType();
 }
 
 
