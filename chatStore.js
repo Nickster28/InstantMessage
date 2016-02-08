@@ -173,23 +173,21 @@ SocketStore.prototype.handleChatAdd = function(socket, msg) {
 ------------------------------
 Parameters:
 	socket - the socket sending the delete message
-	numCharsDeleted - the number of characters to delete from the end
-						of this user's current message
 
 Returns: NA
 
-Given a socket and a delete message from that socket (the number of
-characters to delete from their already-sent message), forwards along
+Given a socket and a delete message from that socket (meaning
+that user has deleted one character from their message), forwards along
 the data to whomever that socket's user is currently chatting with.
 If this socket is not currently chatting with any user, does nothing.
 ------------------------------
 */
-SocketStore.prototype.handleChatDelete = function(socket, numCharsDeleted) {
+SocketStore.prototype.handleChatDelete = function(socket) {
 	var chatBuddySocketID = this.socketIDChatMap[socket.id];
 	if(!chatBuddySocketID) {
 		console.log("Error: got message from non-registered user.");
 	} else {
-		socket.broadcast.to(chatBuddySocketID).emit('chat delete', numCharsDeleted);
+		socket.broadcast.to(chatBuddySocketID).emit('chat delete');
 	}
 }
 

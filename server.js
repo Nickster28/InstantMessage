@@ -32,8 +32,8 @@ io.on('connection', function(socket) {
 	// Triggered when an in-chat user deletes already-typed
 	// text.  Send along the number of characters deleted
 	// to their buddy.
-	socket.on('chat delete', function(numCharsDeleted) {
-		chatStore.handleChatDelete(socket, numCharsDeleted);
+	socket.on('chat delete', function() {
+		chatStore.handleChatDelete(socket);
 	});
 
 	// Triggered when a user closes the chat page.  Clean
