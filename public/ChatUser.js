@@ -38,7 +38,7 @@ function ChatUser(name, bubbleClassName, hasPrecedence) {
 	this.typingTimeoutFuncID = null;
 	this.hasPrecedence = hasPrecedence;
 }
-ChatUser.typingTimeout = 1500;
+ChatUser.typingTimeout = 1000;
 
 
 /* METHOD: userDidType
