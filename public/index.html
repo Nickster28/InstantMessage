@@ -9,36 +9,11 @@
   </head>
   <body>
 
-    <table style="width:100%">
-    <tr>
-      <th id="buddyName"> Looking for chat buddy... </th>
-      <th id="ownName"> You </th>
-    </tr>
-    <tr>
-      <td id="buddyMessage">
-      </td>
-      <td id="ownMessage">
-        <textarea id="m"></textarea>
-      </td>
-    </tr>
-    </table>
-
-    <!-- Modal name popup -->
-    <div class="modal fade" id="nameModal" tabindex="-1" role="dialog" aria-labelledby="nameModal">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Hi!  What's your name?</h4>
-          </div>
-          <div class="modal-body">
-            <input type="text" class="form-control" id="nameInput" autocomplete="false" />
-          </div>
-          <div class="modal-footer">
-            <button id="nameModalDismissButton" type="button" class="btn btn-primary">Start Chatting!</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+    <div class="page-header" id="header">
+      <h1> Instant Message <small id="buddyName">Looking for chat buddy...</small> </h1>
+    </div>
+    
+    <div class="container"></div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
