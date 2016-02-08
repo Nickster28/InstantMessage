@@ -151,12 +151,11 @@ function messageAdd(character, user, secondaryUser) {
         var newElem = "<div class=\"" + user.bubbleClassName + "\">" + 
             "<b>" + user.userName + ": </b> <span>" + character + "</span></div>";
         $(newElem).hide().appendTo($(".container")).fadeIn("fast");
+        $(".container").children().last()[0].scrollIntoView();
     } else {
         var bubbleSpan = $(user.jQueryClassName).last().find("span");
         bubbleSpan.text(bubbleSpan.text() + character);
     }
-
-    window.scrollTo(0,document.body.scrollHeight);
 
     user.userDidType();
 }
