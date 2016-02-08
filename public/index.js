@@ -55,8 +55,13 @@ function configureChatWithUserName(currentUserName) {
     // Buddy change handlers
     socket.on('buddy-assigned', showBuddyName);
     socket.on('buddy-left', function() {
-        buddyUser = null;
         $('#buddyName').html("Looking for chat buddy...");
+
+        var newElem = "<div class=\"" + buddyUser.bubbleClassName + "\">" + 
+            "<b>" + buddyUser.userName + " left the chat.</b> <span></span></div>";
+        $(newElem).hide().appendTo($(".container")).fadeIn("fast");
+
+        buddyUser = null;
     });
 
     // Handlers for when our buddy types or deletes
