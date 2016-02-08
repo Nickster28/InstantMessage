@@ -6,3 +6,5 @@ This application was meant to simulate in-person conversations as much as possib
 ![Alt text](/../master/Screenshot.png?raw=true)
 
 To run this project, just download and enter `npm start` to start the server.  This project relies on socket.io to communicate between the different chat clients.
+
+Thanks to http://cssdeck.com/labs/6mifhkdc for the CSS for the speech bubbles.
