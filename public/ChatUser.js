@@ -54,8 +54,6 @@ isTyping variable will be set to false.
 */
 ChatUser.prototype.userDidType = function() {
 
-	console.log(this.userName + " typed.");
-
 	// Clear a previous timer function (if any)
 	if (this.typingTimeoutFuncID) {
 		clearTimeout(this.typingTimeoutFuncID);
@@ -67,7 +65,6 @@ ChatUser.prototype.userDidType = function() {
 	// Set a new timer function to set typing back to false
 	var user = this;
 	this.typingTimeoutFuncID = setTimeout(function() {
-		console.log(user.userName + " stopped typing.");
 		user.isTyping = false;
 	}, ChatUser.typingTimeout);
 }

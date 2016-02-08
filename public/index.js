@@ -97,8 +97,11 @@ function handleKeyPress(e) {
     var ev = e || window.event;
     if (ev.which == 8) {
         messageDelete(currentUser);
+        socket.emit('chat delete');
     } else {
-        messageAdd(String.fromCharCode(ev.which), currentUser, buddyUser); 
+        var charToAdd = String.fromCharCode(ev.which);
+        messageAdd(charToAdd, currentUser, buddyUser); 
+        socket.emit('chat add', charToAdd);
     }
 }
 
@@ -130,7 +133,6 @@ else:
 -----------------------------
 */
 function messageAdd(character, user, secondaryUser) {
-
     user.userDidType();
 
     var userTypedLast = $(user.jQueryClassName).last().is(":last-child");
@@ -149,10 +151,6 @@ function messageAdd(character, user, secondaryUser) {
         var bubbleSpan = $(user.jQueryClassName).last().find("span");
         bubbleSpan.text(bubbleSpan.text() + character);
     }
-
-    if (user == currentUser) {
-        socket.emit('chat add', character);
-    }
 }
 
 
@@ -163,9 +161,33 @@ Parameters:
 
 Returns: NA
 
-Removes a character from the most recent bubble of the given user.
+Removes a character from the most recent bubble of the given user.  If
+that bubble is now empty, fades out the whole bubble.
 -----------------------------
 */
 function messageDelete(user) {
+    var lastUserBubble = $(user.jQueryClassName).last();
+    if (lastUserBubble.length == 0) return;
+
+    user.userDidType();
+
+    var bubbleSpan = lastUserBubble.find("span");
+    var bubbleText = bubbleSpan.text();
     
+    // Delete a character from this bubble.  If this makes the bubble empty,
+    // remove it (fade out).
+    var newBubbleText = bubbleText.substring(0, bubbleText.length - 1);
+    if (newBubbleText.length == 0) {
+        lastUserBubble.fadeOut("fast", function() {
+            $(this).remove();
+        });
+    } else {
+        bubbleSpan.text(newBubbleText);
+    }
 }
+
+
+
+
+
+
