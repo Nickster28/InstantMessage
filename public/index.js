@@ -109,7 +109,7 @@ function messageAdd(character, userBubbleClass, userName) {
     } else {
         var newElem = "<div class=\"" + userBubbleClass.replace(/\./g, " ") + "\">" + 
             "<b>" + userName + ": </b> <span>" + character + "</span></div>";
-        $(newElem).hide().appendTo($(".container")).fadeIn("fast");
+        $(newElem).hide().appendTo($(".container")).fadeIn("fast").scrollIntoView();
     }
 
     if (userBubbleClass == CURRENT_USER && buddyUserName) {
