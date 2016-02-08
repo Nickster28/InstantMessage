@@ -64,23 +64,22 @@ function configureChat() {
         messageDelete(BUDDY_USER);
     });
 
-    // Initialize the chat
-    socket.emit('init', currentUserName, function(buddyName) {
-
-        // Add key press handler - thanks to http://jsfiddle.net/7SP2n/1/
-        // for the hint that I can add a keypress handler to the whole window
-        $(window).keypress(function(e) {
-            var ev = e || window.event;
-            if (ev.which == 8) {
-                messageDelete(CURRENT_USER);
-            } else {
-                messageAdd(String.fromCharCode(ev.which), 
-                    CURRENT_USER, currentUserName); 
-            }
-        });
-
-        showBuddyName(buddyName);
+    // Add key press handler - thanks to http://jsfiddle.net/7SP2n/1/
+    // for the hint that I can add a keypress handler to the whole window
+    $(window).keypress(function(e) {
+        if (!buddyUserName) return;
+        
+        var ev = e || window.event;
+        if (ev.which == 8) {
+            messageDelete(CURRENT_USER);
+        } else {
+            messageAdd(String.fromCharCode(ev.which), 
+                CURRENT_USER, currentUserName); 
+        }
     });
+
+    // Initialize the chat
+    socket.emit('init', currentUserName, showBuddyName);
 }
 
 
